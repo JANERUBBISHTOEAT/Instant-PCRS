@@ -19,6 +19,11 @@
         return document.body.innerHTML.includes('multiple_choice-');
     }
 
+    function checkIfIsVideo() {
+        // if a content includes 'video-***', then it has a video
+        return document.body.innerHTML.includes('video-');
+    }
+
     // Define a class that stores the info of a choice
     class Choice {
         constructor(id, text, value, isCorrect) {
@@ -58,10 +63,10 @@
         var submission_str;
         var data;
         // console.log('Type of submission: ' + typeof(submission));
-        if (typeof(submission) == 'string') {
+        if (typeof (submission) == 'string') {
             data = 'csrfmiddlewaretoken=' + csrftoken + '&submission=' + submission;
         }
-        else if (typeof(submission) == 'object') {
+        else if (typeof (submission) == 'object') {
             if (submission.length == 0) {
                 data = 'csrfmiddlewaretoken=' + csrftoken;
             }
@@ -101,7 +106,7 @@
             error: function (data) {
                 console.log(data);
                 // Create a Alertbox to show the error
-                var text = 'Error: ' + data.responseText;
+                var text = 'Error: ' + data;
                 alert(text);
             }
         });
@@ -146,7 +151,7 @@
         scores = runAnswer(choice_list, questionId);
         current_score = scores[0];
         max_score = scores[1];
-        
+
         console.log(current_score, max_score);
         return current_score == max_score;
     }
@@ -204,35 +209,100 @@
         return finished_cnt;
     }
 
-    console.log(checkIfIsMCQ()); // true or false
-    // Create a HTML button to display the result in student-navbar
-    var result = document.createElement('ul');
-    result.className = 'pcrs-navbar-nav';
-    result.id = 'instant-pcrs';
+    function getVideos() {
+        // Request URL: https://cms-pcrs.utsc.utoronto.ca/cscb09w23/content/videos/155/watched
+        // Request Method: POST
+        // csrftoken: wzbVUY9KD7B5Y3u6LOQ3wNoWO2qnA3kx4gQUQsbhjFBtu2ZjUc35rxvAfLabK4TZ
+        // download: false
 
-    if (checkIfIsMCQ()) {
-        result.innerHTML = '<li><a>Instant PCRS</a></li>';
+        var videoElements = document.querySelectorAll('[id^="video-"]');
+        console.log(videoElements.length + ' videos in total.');
+
+        var finished_cnt = 0;
+        for (var i = 0; i < videoElements.length; i++) {
+            var video = videoElements[i];
+            var video_id = video.id.split('-')[1];
+            console.log('Watching ' + video_id);
+
+            var url = window.location.origin + '/' +
+                window.location.pathname.split('/')[1] +
+                '/content/videos/' + video_id + '/watched';
+
+            // Include origin and referer to avoid 403 error
+            var headers = {
+                'Origin': window.location.origin,
+                'Referer': window.location.href,
+                'X-CSRFToken': getCookie('csrftoken'),
+            };
+
+            // console.log(headers);
+
+            // Avoid 403 error, use synchronous request
+            $.ajax({
+                url: url,
+                type: 'POST',
+                headers: headers,
+                async: false,
+                data: {
+                    'csrftoken': getCookie('csrftoken'),
+                    'download': 'false'
+                },
+                success: function (data) {
+                    console.log('Finished watching ' + video_id);
+                    finished_cnt++;
+                },
+                error: function (data) {
+                    console.log("Failed to watch " + video_id);
+                    var error_msg = data;
+                    alert(error_msg);
+                }
+            });
+        }
+        console.log(finished_cnt + ' videos finished.');
+        return finished_cnt;
+    }
+
+    console.log(checkIfIsMCQ() ? 'MCQ Found' : 'No MCQ Found');
+    console.log(checkIfIsVideo() ? 'Video Found' : 'No Video Found');
+
+    // Create a HTML button to display the result in student-navbar
+    var Instant_PCRS_Button = document.createElement('ul');
+    Instant_PCRS_Button.className = 'pcrs-navbar-nav';
+    Instant_PCRS_Button.id = 'instant-pcrs';
+
+    if (checkIfIsMCQ() && checkIfIsVideo()) {
+        Instant_PCRS_Button.innerHTML = '<li><a>Instant PCRS</a></li>';
     } else {
-        result.innerHTML = '<li><a>Contains no MCQ</a></li>';
+        Instant_PCRS_Button.innerHTML = '<li><a>Contains no MCQ/Video</a></li>';
     }
 
     // Append the element to student-navbar
     var navbar = document.getElementsByClassName('collapse navbar-collapse')[0];
-    navbar.appendChild(result);
+    navbar.appendChild(Instant_PCRS_Button);
 
     // Append the number of questions
     var questionElements = document.querySelectorAll('[id^="multiple_choice-"]');
     var questions_cnt = document.createElement('ul');
     questions_cnt.className = 'pcrs-navbar-nav';
     questions_cnt.id = 'questions_cnt';
-    questions_cnt.innerHTML = '<li><a>' + questionElements.length + '</a></li>';
+    questions_cnt.innerHTML = '<li><a>' + questionElements.length + ' MCQs</a></li>';
     navbar.appendChild(questions_cnt);
+
+    // Append the number of videos
+    var videoElements = document.querySelectorAll('[id^="video-"]');
+    var videos_cnt = document.createElement('ul');
+    videos_cnt.className = 'pcrs-navbar-nav';
+    videos_cnt.id = 'videos_cnt';
+    videos_cnt.innerHTML = '<li><a>' + videoElements.length + ' Videos</a></li>';
+    navbar.appendChild(videos_cnt);
 
     // Monitor the hit of id 'instant-pcrs'
     document.getElementById('instant-pcrs').addEventListener('click', function () {
-        var finished_cnt = getMCQQuestions();
-        // Return the number of questions solved
-        questions_cnt.innerHTML = '<li><a>' + finished_cnt + '/' + questionElements.length + ' Finished</a></li>';
+        var finished_MCQ_cnt = getMCQQuestions();
+        questions_cnt.innerHTML = '<li><a>' + finished_MCQ_cnt + '/' + questionElements.length + ' Finished</a></li>';
+
+        var finished_Video_cnt = getVideos();
+        videos_cnt.innerHTML = '<li><a>' + finished_Video_cnt + '/' + videoElements.length + ' Finished</a></li>';
     });
 
 })();
