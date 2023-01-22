@@ -77,22 +77,12 @@
                 data = 'csrfmiddlewaretoken=' + csrftoken + '&submission=' + submission_str;
             }
         }
-        // console.log('data: ' + data);
-        // var data = {
-        //     'csrfmiddlewaretoken': csrftoken,
-        //     // 'question_id': questionId,
-        //     'submission': submission
-        // };
-
-        // Get curren URL of the page
-        // https://cms-pcrs.utsc.utoronto.ca/cscb09w23/content/challenges/115/1
-        // https://cms-pcrs.utsc.utoronto.ca/cscb09w23/, /challenges/115/1
-        // https://cms-pcrs.utsc.utoronto.ca/cscb09w23/problems/multiple_choice/235/run
 
         var url = window.location.href.split('content')[0] +
             'problems/' + questionId.split('-')[0] +
             '/' + questionId.split('-')[1] + '/run';
 
+        var result;
         $.ajax({
             type: 'POST',
             url: url,
@@ -237,7 +227,6 @@
 
             // console.log(headers);
 
-            // Avoid 403 error, use synchronous request
             $.ajax({
                 url: url,
                 type: 'POST',
@@ -257,6 +246,10 @@
                     alert(error_msg);
                 }
             });
+
+            // // Update HTML element with the number of finished videos
+            // videos_cnt = document.getElementById('videos_cnt');
+            // videos_cnt.innerHTML = '<li><a>' + finished_cnt + '/' + videoElements.length + ' Finished</a></li>';
         }
         console.log(finished_cnt + ' videos finished.');
         return finished_cnt;
@@ -270,7 +263,7 @@
     Instant_PCRS_Button.className = 'pcrs-navbar-nav';
     Instant_PCRS_Button.id = 'instant-pcrs';
 
-    if (checkIfIsMCQ() && checkIfIsVideo()) {
+    if (checkIfIsMCQ() || checkIfIsVideo()) {
         Instant_PCRS_Button.innerHTML = '<li><a>Instant PCRS</a></li>';
     } else {
         Instant_PCRS_Button.innerHTML = '<li><a>Contains no MCQ/Video</a></li>';
