@@ -165,7 +165,15 @@
             question.choices = [];
 
             // question.id = problem_pk;
-            question.id = questionElements[i].id;
+            try {
+                question.id = questionElements[i].id;
+            }
+            catch (err) {
+                question.id = 'error';
+                console.log('Error: Cannot get question id for question ' + i + ':');
+                console.log('questionElements[i]: ' + questionElements[i]);
+                continue;
+            }
 
             // Get the id of the option
             var options = optionElements[i].getElementsByTagName('input');
