@@ -27,6 +27,8 @@ This is quite possible imo because:
 4. Click on the button that says "Instant PCRS" and wait for the script to finish
 5. The two elements beside the button, one for MCQs and one for videos, will be showing the output of the script. For instance: `2/2 Finished 2/2 Finished`
 
+or simply use [Tampermonkey](https://www.tampermonkey.net/) to install the script
+
 ## When to use
 
 See the purpose section above.
@@ -55,8 +57,8 @@ Preconditions:
 
 Procedure:
 
-- Get the MCQs by `document.querySelectorAll('[id^="multiple_choice-"]');`
-- For each MCQ, get the options by `.getElementsByClassName('checkbox');`
+- Get the MCQs by [`document.querySelectorAll('[id^="multiple_choice-"]');`](https://github.com/JANERUBBISHTOEAT/Instant-PCRS/blob/master/PCRS.js#L153)
+- For each MCQ, get the options by [`.getElementsByClassName('checkbox');`](https://github.com/JANERUBBISHTOEAT/Instant-PCRS/blob/master/PCRS.js#L182)
 - Use ajax to send the request to the server to get the result
 - Try empty; if it is correct, then skip to the next question
 - Try each option, the option that is correct will increase the score by 1, and the option that is incorrect will decrease the score by 1
@@ -65,7 +67,7 @@ Procedure:
 
 For the videos, it is quite the same.
 
-- Get the videos by `document.querySelectorAll('[id^="video-"]');`
+- Get the videos by [`document.querySelectorAll('[id^="video-"]');`](https://github.com/JANERUBBISHTOEAT/Instant-PCRS/blob/master/PCRS.js#L220)
 - Send a request to the server to notify that the video is watched
 
     ```js
