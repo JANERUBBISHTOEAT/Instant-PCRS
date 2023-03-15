@@ -151,16 +151,16 @@
         // Get the questions by id contains 'multiple_choice-***'
         // <div id="multiple_choice-1117">
         var questionElements = document.querySelectorAll('[id^="multiple_choice-"]');
-        // console.log(questionElements);
+        console.log(questionElements.length + ' questions in total.');
 
-        var optionElements = document.getElementsByClassName('controls');
-        console.log(optionElements.length + ' questions in total.');
+        // var optionElements = document.getElementsByClassName('controls');
+        // console.log(optionElements.length + ' questions in total.');
         // console.log(optionElements);
 
         // Get the options by the class name 'checkbox'
         // <input type="checkbox" name="options" id="id_options_1" value="1117">
         var finished_cnt = 0;
-        for (var i = 0; i < optionElements.length; i++) {
+        for (var i = 0; i < questionElements.length; i++) {
             var question = new Question();
             question.choices = [];
 
@@ -175,12 +175,16 @@
                 continue;
             }
 
-            // Get the id of the option
-            var options = optionElements[i].getElementsByTagName('input');
-            console.log(options.length + ' options in total.')
+            // Get the id of the option by Type 'checkbox'
+            // <label class="checkbox">
+            // <input type="checkbox" name="options" id="id_options_5" value="880">... </label>
+            // </label>
+            var optionElements = questionElements[i].getElementsByClassName('checkbox');
+            console.log(optionElements.length + ' options in total.');
+            var options = [];
 
-            for (var j = 0; j < options.length; j++) {
-                // console.log(options[j]);
+            for (var j = 0; j < optionElements.length; j++) {
+                options.push(optionElements[j].getElementsByTagName('input')[0]);
                 var option = options[j];
                 var id = option.id;
                 var text = option.innerText;
