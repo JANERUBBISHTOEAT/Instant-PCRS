@@ -15,7 +15,7 @@ This is quite possible imo because:
     - the PCRS does not take long to complete so it could be easily ignored at the beginning of each week
     - it does not come with any notification or alert to remind you to do it
 
-**and not to**
+**and not to:**
 
 1. **cheat on the PCRS**
 
